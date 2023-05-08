@@ -46,6 +46,14 @@
                 </h1>
             </div>
 
+            <!-- searching.... -->
+            <div style="padding-left:400px; padding-bottom:30px;">
+                <form action="{{url('search')}}" method="get">
+                    @csrf
+                    <input style="color:black;" type="text" name="search" placeholder="Search For SomeThing">
+                    <input type="submit" value="search" class="btn btn-outline-primary">
+                </form>
+            </div>
 
             <div>
                 <table class="table_deg">
@@ -65,7 +73,8 @@
                         <th style="padding:10px;">Send Email</th>
                     </tr>
 
-                    @foreach($order as $order)
+                    <!-- foreach replace whit forelse because using empty fun -->
+                    @forelse($order as $order)
                     <tr>
                         <td>{{ $order->name }} </td>
                         <td>{{ $order->email }} </td>
@@ -96,7 +105,19 @@
                         </td>
 
                     </tr>
-                    @endforeach
+
+                    <!-- show empty list when user search wrong thing -->
+                    @empty
+                    <!-- <div>
+                        <p>No Data Found!</p>
+                    </div> -->
+
+                    <tr>
+                        <td colspan="16">
+                            No Data Found!
+                        </td>
+                    </tr>
+                    @endforelse
 
                 </table>
             </div>

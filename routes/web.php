@@ -43,6 +43,7 @@ route::get('/delivered/{id}', [AdminController::class, 'delivered']);
 route::get('/print_pdf/{id}', [AdminController::class, 'print_pdf']);
 route::get('/send_email/{id}', [AdminController::class, 'send_email']);
 route::post('/send_user_email/{id}', [AdminController::class, 'send_user_email']);
+Route::get('/search', [AdminController::class,'searchData']);
 
 
 // front end
@@ -54,3 +55,4 @@ route::get('/remove_cart/{id}', [HomeController::class, 'remove_cart']);
 route::get('/cash_order', [HomeController::class, 'cash_order']);
 route::get('/stripe/{totalprice}', [HomeController::class, 'stripe']);
 Route::post('stripe/{totalprice}', [HomeController::class, 'stripePost'])->name('stripe.post');
+Route::get('/product_search', [HomeController::class, 'product_search']);
