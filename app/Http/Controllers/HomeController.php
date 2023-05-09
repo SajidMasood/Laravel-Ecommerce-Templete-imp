@@ -211,4 +211,27 @@ class HomeController extends Controller
         $product = Product::where('title','LIKE','%$search_text%')->paginate(10);
         return view('home.userpage', compact('product'));
     }
+
+
+    public function show_order(){
+         if(Auth::id()){
+            // which user is login
+            $user = Auth::user();
+            $userid = $user->id;
+            $order = order::where('user_id','=',$userid)->get();
+
+            return view('home.order', compact('order'));
+         } else {
+            return redirect('login');
+         }
+    }
+
+
+
+    public function cancel_order($id){
+        $order = order::find($id);
+        $order->delivery_status = 'You canceled the order';
+        $order->save();
+        return redirect()->back();
+    }
 }
