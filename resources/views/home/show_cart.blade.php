@@ -1,7 +1,17 @@
 <!DOCTYPE html>
 <html>
    <head>
-      <!-- Basic -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+   <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <!-- Mobile Metas -->
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+      <!-- Site Metas -->
+      <meta name="keywords" content="" />
+      <meta name="description" content="" />
+      <meta name="author" content="" />
+      
       <meta charset="utf-8" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <!-- Mobile Metas -->
@@ -13,14 +23,14 @@
       <link rel="shortcut icon" href="images/favicon.png" type="">
       <title>Famms - Fashion HTML Template</title>
       <!-- bootstrap core css -->
-      <link rel="stylesheet" type="text/css" href="home/css/bootstrap.css" />
+      <link rel="stylesheet" type="text/css" href="{{asset('home/css/bootstrap.css')}}" />
       <!-- font awesome style -->
-      <link href="home/css/font-awesome.min.css" rel="stylesheet" />
+      <link href="{{asset('home/css/font-awesome.min.css')}}" rel="stylesheet" />
       <!-- Custom styles for this template -->
-      <link href="home/css/style.css" rel="stylesheet" />
+      <link href="{{asset('home/css/style.css')}}" rel="stylesheet" />
       <!-- responsive style -->
-      <link href="home/css/responsive.css" rel="stylesheet" />
-
+      <link href="{{asset('home/css/responsive.css')}}" rel="stylesheet" />
+      
       <style type="text/css">
         .center{
             margin:auto;
@@ -43,6 +53,8 @@
       </style>
    </head>
    <body>
+
+   @include('sweetalert::alert')
       <div class="hero_area">
          <!-- header section strats -->
          @include('home.header')
@@ -75,7 +87,7 @@
                     <td> {{ $cart->quantity }} </td>
                     <td> ${{ $cart->price }} </td>
                     <td> <img width="100" height="100" src="/product/{{ $cart->image }}" alt=""> </td>
-                    <td> <a class="btn btn-danger" onclick="return confirm('Are you Sure to remove this product')" href="{{ url('remove_cart', $cart->id) }}"> Remove Product </a> </td>
+                    <td> <a class="btn btn-danger" onclick="confirmation(event)" href="{{ url('remove_cart', $cart->id) }}"> Remove Product </a> </td>
                 </tr>
 
                 <?php $totalprice = $totalprice + $cart->price; ?>
@@ -111,6 +123,30 @@
          
          </p>
       </div>
+
+
+
+
+      <!-- sweet alert  code for delete box -->
+      <script>
+        function confirmation(ev){
+            ev.preventDefault();
+            var urlToRedirect = ev.currentTarget.getAttribute('href');
+            console.log(urlToRedirect);
+            swal({
+                title: "Are you sure to cancel this product",
+                text: "You will not be able to revert this!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willCancel) => {
+                if (willCancel) {
+                    window.location.href = urlToRedirect;
+                }
+            });
+        }
+      </script>
       <!-- jQery -->
       <script src="home/js/jquery-3.4.1.min.js"></script>
       <!-- popper js -->

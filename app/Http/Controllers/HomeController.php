@@ -12,6 +12,8 @@ use Session;
 use Stripe;
 use App\Models\Comment;
 use App\Models\Reply;
+use RealRashid\SweetAlert\Facades\Alert;
+
 class HomeController extends Controller
 {
     public function index(){
@@ -67,31 +69,54 @@ class HomeController extends Controller
         // import Auth class
         if (Auth::id()) {
             $user = Auth::user();
+            // get user login id
+            $userid = $user->id;
             //dd($user);
             $product = product::find($id);
-            //dd($product);
-            $cart = new cart;
-            $cart->user_id = $user->id;
-            $cart->name = $user->name;
-            $cart->email = $user->email;
-            $cart->phone = $user->phone;
-            $cart->address = $user->address;
+            //dd($product); | now existing product only increase quantity
+            $product_exist_id = cart::where('product_id','=',$id)->where('user_id','=',$userid)->get('id')->first();
+            if ($product_exist_id) {
+                $cart = cart::find($product_exist_id)->first();
+                $quantity = $cart->quantity;
+                $cart->quantity = $quantity + $request->quantity;
 
-            $cart->product_title = $product->title;
-            if ($product->discount_price != null) {
-                $cart->price = $product->discount_price * $request->quantity;
-            } else {
-                $cart->price = $product->price * $request->quantity;    
+                if ($product->discount_price != null) {
+                    $cart->price = $product->discount_price * $cart->quantity;
+                } else {
+                    $cart->price = $product->price * $cart->quantity;    
+                }
+
+                $cart->save();
+                return redirect()->back()->with('message','Product Added Successfully');
+            } else{
+                $cart = new cart;
+                $cart->user_id = $user->id;
+                $cart->name = $user->name;
+                $cart->email = $user->email;
+                $cart->phone = $user->phone;
+                $cart->address = $user->address;
+
+                $cart->product_title = $product->title;
+                if ($product->discount_price != null) {
+                    $cart->price = $product->discount_price * $request->quantity;
+                } else {
+                    $cart->price = $product->price * $request->quantity;    
+                }
+                
+                $cart->image = $product->image;
+                $cart->product_id = $product->id;
+
+                $cart->quantity = $request->quantity;
+
+                $cart->save();
+                // sweet alert
+                Alert::success('Product Added Successfully','We have added product to the cart');
+                // return redirect()->back()->with('message','Product Added Successfully');
+                return redirect()->back();
             }
+
+
             
-            $cart->image = $product->image;
-            $cart->product_id = $product->id;
-
-            $cart->quantity = $request->quantity;
-
-            $cart->save();
-
-            return redirect()->back();
         } else {
             return redirect('login');
         }
@@ -214,10 +239,13 @@ class HomeController extends Controller
 
     //search Product 
     public function product_search(Request $request){
+
+        $comment = Comment::orderby('id','desc')->get();
+        $reply = Reply::all();
         $search_text = $request->search;
         // $product = Product::where('title','LIKE','%$search_text%')->get();
-        $product = Product::where('title','LIKE','%$search_text%')->paginate(10);
-        return view('home.userpage', compact('product'));
+        $product = Product::where('title','LIKE',"%$search_text%")->orWhere('catagory','LIKE',"$search_text")->paginate(10);
+        return view('home.userpage', compact('product','comment','reply'));
     }
 
 
@@ -274,4 +302,25 @@ class HomeController extends Controller
             return redirect('login');
         }
     }
+
+    public function products(){
+        $product = Product::paginate(9);
+        $comment = Comment::orderby('id','desc')->get();
+        $reply = Reply::all();
+        return view('home.all_product', compact('product','comment','reply'));
+    }
+
+
+
+    //search Product 
+    public function search_product(Request $request){
+
+        $comment = Comment::orderby('id','desc')->get();
+        $reply = Reply::all();
+        $search_text = $request->search;
+        // $product = Product::where('title','LIKE','%$search_text%')->get();
+        $product = Product::where('title','LIKE',"%$search_text%")->orWhere('catagory','LIKE',"$search_text")->paginate(10);
+        return view('home.all_product', compact('product','comment','reply'));
+    }
+
 }

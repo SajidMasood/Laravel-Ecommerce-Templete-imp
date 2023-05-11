@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Catagory;
 use App\Models\Product;
 use App\Models\Order;
@@ -13,10 +14,14 @@ use App\Notifications\SendEmailNotification;
 class AdminController extends Controller
 {
     public function view_catagory(){
-
-        //show data from db| import Model class 
-        $data = catagory::all();
-        return view('admin.catagory', compact('data') );
+        if (Auth::id()) {
+            //show data from db| import Model class 
+            $data = catagory::all();
+            return view('admin.catagory', compact('data') );
+        } else {
+            return redirect('login');
+        } 
+        
     }
 
     // first add Model class
@@ -88,22 +93,27 @@ class AdminController extends Controller
         return view('admin.update_product' , compact('product','catagory') );
     }
     public function update_product_confirm(Request $req, $id){
-        $product = product::find($id);
-        $product->title = $req->title;
-        $product->description = $req->description;
-        $product->price = $req->price;
-        $product->quantity = $req->quantity;
-        $product->discount_price = $req->dis_price;
-        $product->catagory = $req->catagory;
-        // for image
-        $image  = $req->image;
-        if ($image) {
-            $imageName = time().'.'.$image->getClientOriginalExtension();
-            $req->image->move('product',$imageName);
-            $product->image = $imageName;
+        if (Auth::id()) {
+            $product = product::find($id);
+            $product->title = $req->title;
+            $product->description = $req->description;
+            $product->price = $req->price;
+            $product->quantity = $req->quantity;
+            $product->discount_price = $req->dis_price;
+            $product->catagory = $req->catagory;
+            // for image
+            $image  = $req->image;
+            if ($image) {
+                $imageName = time().'.'.$image->getClientOriginalExtension();
+                $req->image->move('product',$imageName);
+                $product->image = $imageName;
+            }
+            $product->save();
+            return redirect()->back()->with('message','Product Updated Successfully...');
+        } else {
+            return redirect('login');
         }
-        $product->save();
-        return redirect()->back()->with('message','Product Updated Successfully...');
+        
     }
 
 
